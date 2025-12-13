@@ -8,13 +8,6 @@ venv/
 
 
 # Data files
-*.csv
 data/
 stocks/
-*.parquet
-*.db
-*.sqlite
 
-# OS files
-.DS_Store
-Thumbs.db
