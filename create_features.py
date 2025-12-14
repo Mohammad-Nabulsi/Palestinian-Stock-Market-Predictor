@@ -40,7 +40,7 @@ def fix_stock_change_pctg_leakge(stock, stock_name):
         )
         print(stock_new[['change_pctg', 'change_from_yesterday', 'change_from_tomorrow']].head())
 
-    # Clean + rename
+    
     drop_cols = ['yesterday', 'change_pctg']
     if 'tomorrow' in stock_new:
         drop_cols += ['tomorrow', 'change_from_tomorrow']
@@ -50,7 +50,7 @@ def fix_stock_change_pctg_leakge(stock, stock_name):
 
     return stock_new
 
-def create_target_variable(df, classification=True,duration=1, direction=True):
+def create_target_variable(df, classification=True,duration=1, direction=True, epsilon=0.001):
                                             
     """
     Create a target variable that indicates whether the stock price increased the next day.
@@ -66,23 +66,25 @@ def create_target_variable(df, classification=True,duration=1, direction=True):
     """
     df_new = df.copy()
     
-    # Calculate next day's closing price
+    
     df_new['tomorrow'] = df_new['closing'].shift(-1*duration)
+
+    ret = (df_new['tomorrow'] - df_new['closing']) / df_new['closing']
     
     # Create target variable
     if classification:
+        df_new[f'clf_target_{duration}d'] = 0
         if direction:
-            df_new[f'clf_target_{duration}d_+ve'] = (df_new['tomorrow'] > df_new['closing']).astype(int)
+            df_new.loc[ret >  epsilon, f'clf_target_{duration}d'] =  1
         else:
-            df_new[f'clf_target_{duration}d_-ve'] = (df_new['tomorrow'] < df_new['closing']).astype(int)
-
+            df_new.loc[ret <  epsilon, f'clf_target_{duration}d'] =  1
     else:
         df_new[f'reg_target_{duration}d'] = df_new['tomorrow'] - df_new['closing']
     
-    # Drop rows where next day's closing price is NaN
+    
     df_new = df_new.dropna(subset=['tomorrow'])
     
-    # Drop the helper column
+    
     df_new.drop(columns=['tomorrow'], inplace=True)
     
     return df_new
@@ -187,7 +189,6 @@ def create_liquidity(x):
     """
 
     df =x.copy()
-    df['volume_z'] = (df['volume'] - df['volume'].mean()) / df['volume'].std()
     df['n_deals_change'] = df['n_deals'].pct_change()
 
     return df

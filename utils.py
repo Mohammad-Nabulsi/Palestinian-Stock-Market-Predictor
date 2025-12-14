@@ -47,7 +47,8 @@ FEATURE_REGISTRY = {
         "create_params": {
             "classification": True,
             "duration": 1,
-            "direction": True
+            "direction": True,
+            "epsilon": 0.001
         },
         "plot_params": {
             "classification": True,
@@ -69,7 +70,7 @@ FEATURE_REGISTRY = {
         "plot": vz.plot_range,
         "create_params": {},
         "plot_params": {
-            "clf_target": "clf_target_1d_+ve",
+            "clf_target": "clf_target_1d",
             "corr": True
         }
     },

@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def plot_feature_distributions(df, feature_cols, target_col=None):
+def plot_feature_distributions(df,  target_col=None):
     """
     Plot the distributions of specified features. If a target column is provided,
     plot the distributions conditioned on the target variable.
@@ -16,6 +16,8 @@ def plot_feature_distributions(df, feature_cols, target_col=None):
     Returns:
     None
     """
+    feature_cols = list(df.columns)
+    feature_cols.remove("clf_target_1d")
     num_features = len(feature_cols)
     fig, axes = plt.subplots(num_features, 1, figsize=(8, 5 * num_features))
 
@@ -115,11 +117,12 @@ def plot_target(x, classification=True, direction=True, duration=1, corr=True):
 
     df = x.copy()
     if classification:
+        target_name = f'clf_target_{duration}d'
         if direction:
-            target_name = f'clf_target_{duration}d_+ve'
+            lbl = "Meaningful up movement: 1"
         else:
-            target_name = f'clf_target_{duration}d_-ve'
-        sns.countplot(data=df, x=target_name, label=target_name)
+            lbl = "Meaningful down movement: 1"
+        sns.countplot(data=df, x=target_name, label=lbl)
     else:
         target_name = f'reg_target_{duration}d'
         sns.histplot(data=df, x=target_name, label=target_name)
@@ -201,7 +204,7 @@ def plot_stock_ma(x, list=[20, 50, 200], corr=True):
         print_strong_corr(df, mas)
 
 
-def plot_range(x, clf_target='clf_target_1d_+ve', corr=True):
+def plot_range(x, clf_target='clf_target_1d', corr=True):
 
     df = x.copy()
 
@@ -306,39 +309,6 @@ def plot_rsi(x, list=[7, 14], corr=True):
 def plot_liquidity(x):
     df = x.copy()
 
-    # =======================
-    # 1️⃣ volume_z
-    # =======================
-
-    # --- Time series ---
-    print("Liquidity Features (volume_z) and (n_deals_change) Created.")
-
-
-    plt.figure(figsize=(12, 4))
-    plt.plot(df.index, df['volume_z'], label='Volume Z-Score', color='blue')
-    plt.axhline(0, linestyle='--', alpha=0.6)
-    plt.axhline(2, linestyle='--', color='red', alpha=0.5)
-    plt.axhline(-2, linestyle='--', color='red', alpha=0.5)
-    plt.title("Volume Z-Score Over Time")
-    plt.xlabel("Date")
-    plt.ylabel("Z-Score")
-    plt.legend()
-    plt.show()
-
-    # --- Distribution ---
-    plt.figure(figsize=(8, 4))
-    plt.hist(df['volume_z'].dropna(), bins=40)
-    plt.title("Volume Z-Score Distribution")
-    plt.xlabel("Z-Score")
-    plt.ylabel("Count")
-    plt.show()
-
-
-    # =======================
-    # 2️⃣ n_deals_change
-    # =======================
-
-    # --- Time series ---
     plt.figure(figsize=(12, 4))
     plt.plot(df.index, df['n_deals_change'], label='Change in # Deals', color='orange')
     plt.axhline(0, linestyle='--', alpha=0.6)
@@ -348,7 +318,7 @@ def plot_liquidity(x):
     plt.legend()
     plt.show()
 
-    # --- Distribution ---
+
     plt.figure(figsize=(8, 4))
     plt.hist(df['n_deals_change'].dropna(), bins=40)
     plt.title("Distribution of Change in Number of Deals")
@@ -370,7 +340,7 @@ def plot_macd(x):
     plt.legend()
     plt.show()
 
-    ## ---- MACD HIST----
+
     plt.figure(figsize=(12, 4))
     plt.bar(df.index, df['macd_hist'], width=1.0)
     plt.axhline(0, linestyle='--', alpha=0.6)
@@ -385,17 +355,16 @@ def plot_stochastic(x):
 
     plt.figure(figsize=(12, 4))
 
-    # Main oscillator level (stable)
+
     plt.plot(df.index, df['stoch_d'], label='%D (Slow)', color='orange')
 
-    # Momentum / crossover info (replaces %K)
+
     plt.plot(df.index, df['stoch_diff'], label='%K - %D (Diff)', color='blue', alpha=0.7)
 
-    # Thresholds meaningful for stoch level
+
     plt.axhline(80, linestyle='--', color='red', alpha=0.6, label='Overbought (80)')
     plt.axhline(20, linestyle='--', color='green', alpha=0.6, label='Oversold (20)')
 
-    # Threshold meaningful for diff (crossovers)
     plt.axhline(0, linestyle='--', color='black', alpha=0.5, label='Diff = 0 (Crossover)')
 
     plt.title("Stochastic Oscillator: %D and Diff (%K-%D)")
