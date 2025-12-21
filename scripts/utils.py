@@ -29,7 +29,7 @@ def nyears(data, n=4):
     df = data.copy()
     df_nyears = df[df.index >= (df.index.max() - pd.DateOffset(years=n))]
 
-    vz.plot_initial(df_nyears)
+    #vz.plot_initial(df_nyears)
     return df_nyears
 
 FEATURE_REGISTRY = {
