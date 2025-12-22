@@ -9,5 +9,7 @@ venv/
 
 # Data files
 data/
-stocks/
+individual_stocks/
 
+
+ALL_STOCKS.xlsx
